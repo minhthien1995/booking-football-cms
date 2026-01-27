@@ -211,7 +211,7 @@ class ApiService {
 
   async cancelBooking(id) {
     return this.request(`/bookings/${id}/cancel`, {
-      method: 'PATCH',
+      method: 'PUT',
     });
   }
 }
