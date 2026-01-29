@@ -197,14 +197,14 @@ class ApiService {
 
   async updateBookingStatus(id, status) {
     return this.request(`/bookings/${id}/status`, {
-      method: 'PATCH',
+      method: 'PUT',
       body: JSON.stringify({ status }),
     });
   }
 
   async updatePaymentStatus(id, paymentStatus) {
     return this.request(`/bookings/${id}/payment`, {
-      method: 'PATCH',
+      method: 'PUT',
       body: JSON.stringify({ paymentStatus }),
     });
   }
