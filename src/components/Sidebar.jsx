@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, X, Users, Shield, Calendar, MapPin, TrendingUp, LogOut } from 'lucide-react';
+import { Menu, X, Users, Shield, Calendar, MapPin, TrendingUp, LogOut, BarChart3 } from 'lucide-react';
 
 const Sidebar = ({ 
   sidebarOpen, 
@@ -15,6 +15,7 @@ const Sidebar = ({
     { id: 'admins', label: 'Admins', icon: Users },
     { id: 'fields', label: 'Sân bóng', icon: MapPin },
     { id: 'bookings', label: 'Bookings', icon: Calendar },
+    { id: 'reports', label: 'Báo cáo', icon: BarChart3 },
   ];
 
   return (

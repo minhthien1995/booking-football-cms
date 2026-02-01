@@ -15,6 +15,7 @@ import RolesPage from './pages/RolesPage';
 import AdminsPage from './pages/AdminsPage';
 import BookingsPage from './pages/Bookingspage';
 import FieldsPage from './pages/FieldsPage';
+import ReportsPage from './pages/ReportsPage';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -48,8 +49,8 @@ function App() {
   // Fetch data based on active tab
   useEffect(() => {
     if (!user) return;
-    
-    switch(activeTab) {
+
+    switch (activeTab) {
       case 'dashboard':
         fetchStats();
         break;
@@ -66,6 +67,9 @@ function App() {
         break;
       case 'fields':
         fetchFields();
+        break;
+      case 'reports':  // ← THÊM CASE NÀY
+        // Reports tự fetch data
         break;
       default:
         break;
@@ -104,7 +108,7 @@ function App() {
     }
   };
 
-  
+
 
   const fetchPermissions = async () => {
     try {
@@ -185,40 +189,40 @@ function App() {
   };
 
   const handleUpdateBookingStatus = async (bookingId, status) => {
-  try {
-    await api.updateBookingStatus(bookingId, status);
-    showNotification('Cập nhật trạng thái thành công!');
-    fetchBookings();
-  } catch (error) {
-    showNotification(error.message, 'error');
-  }
-};
+    try {
+      await api.updateBookingStatus(bookingId, status);
+      showNotification('Cập nhật trạng thái thành công!');
+      fetchBookings();
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  };
 
-const handleUpdatePaymentStatus = async (bookingId, paymentStatus) => {
-  try {
-    await api.updatePaymentStatus(bookingId, paymentStatus);
-    showNotification('Cập nhật thanh toán thành công!');
-    fetchBookings();
-  } catch (error) {
-    showNotification(error.message, 'error');
-  }
-};
+  const handleUpdatePaymentStatus = async (bookingId, paymentStatus) => {
+    try {
+      await api.updatePaymentStatus(bookingId, paymentStatus);
+      showNotification('Cập nhật thanh toán thành công!');
+      fetchBookings();
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  };
 
-const handleCancelBooking = async (bookingId) => {
-  if (!window.confirm('Bạn có chắc muốn hủy booking này?')) return;
-  
-  try {
-    await api.cancelBooking(bookingId);
-    showNotification('Hủy booking thành công!');
-    fetchBookings();
-  } catch (error) {
-    showNotification(error.message, 'error');
-  }
-};
+  const handleCancelBooking = async (bookingId) => {
+    if (!window.confirm('Bạn có chắc muốn hủy booking này?')) return;
+
+    try {
+      await api.cancelBooking(bookingId);
+      showNotification('Hủy booking thành công!');
+      fetchBookings();
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  };
 
   const handleDeleteRole = async (roleId) => {
     if (!window.confirm('Bạn có chắc muốn xóa role này?')) return;
-    
+
     try {
       await api.deleteRole(roleId);
       showNotification('Xóa role thành công!');
@@ -262,10 +266,10 @@ const handleCancelBooking = async (bookingId) => {
         onLogout={handleLogout}
       />
 
-      <main className={`transition-all duration-300 ${sidebarOpen ? 'ml-72' : 'ml-20'} p-8`}>
+      <main className={`transition-all duration-300 ${sidebarOpen ? 'ml-72' : 'ml-20'} p-4 sm:p-6 lg:p-8`}>
         <div className="max-w-7xl mx-auto">
           {activeTab === 'dashboard' && <DashboardPage stats={stats} />}
-          
+
           {activeTab === 'roles' && (
             <RolesPage
               roles={roles}
@@ -305,7 +309,9 @@ const handleCancelBooking = async (bookingId) => {
               onRefresh={fetchBookings}
             />
           )}
+          {activeTab === 'reports' && <ReportsPage />}
         </div>
+        
       </main>
 
       {showRoleModal && (
@@ -318,7 +324,9 @@ const handleCancelBooking = async (bookingId) => {
             setEditingRole(null);
           }}
         />
+        
       )}
+      
     </div>
   );
 }

@@ -26,7 +26,7 @@ class ApiService {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Request failed');
       }
@@ -36,18 +36,41 @@ class ApiService {
       throw error;
     }
   }
+  // Admins
+  async getAdmins() {
+    return this.request('/superadmin/admins');
+  }
 
+  async createAdmin(adminData) {
+    return this.request('/superadmin/admins', {
+      method: 'POST',
+      body: JSON.stringify(adminData),
+    });
+  }
+
+  async updateAdmin(id, adminData) {
+    return this.request(`/superadmin/admins/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(adminData),
+    });
+  }
+
+  async deleteAdmin(id) {
+    return this.request(`/superadmin/admins/${id}`, {
+      method: 'DELETE',
+    });
+  }
   // Auth
   async login(email, password) {
     const data = await this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    
+
     if (data.data.user.role !== 'superadmin' && data.data.user.role !== 'admin') {
       throw new Error('Bạn không có quyền truy cập trang admin');
     }
-    
+
     this.setToken(data.data.token);
     return data.data;
   }
@@ -214,6 +237,56 @@ class ApiService {
       method: 'PUT',
     });
   }
+
+  // ============================================
+  // REPORTS METHODS
+  // ============================================
+  async getOverviewReport(period, startDate, endDate) {
+    const params = new URLSearchParams({ period });
+    if (period === 'custom' && startDate && endDate) {
+      params.append('startDate', startDate);
+      params.append('endDate', endDate);
+    }
+    return this.request(`/reports/overview?${params.toString()}`);
+  }
+
+  async getRevenueByDate(period, startDate, endDate) {
+    const params = new URLSearchParams({ period });
+    if (period === 'custom' && startDate && endDate) {
+      params.append('startDate', startDate);
+      params.append('endDate', endDate);
+    }
+    return this.request(`/reports/revenue-by-date?${params.toString()}`);
+  }
+
+  async getFieldPerformance(period, startDate, endDate) {
+    const params = new URLSearchParams({ period });
+    if (period === 'custom' && startDate && endDate) {
+      params.append('startDate', startDate);
+      params.append('endDate', endDate);
+    }
+    return this.request(`/reports/field-performance?${params.toString()}`);
+  }
+
+  async getCustomerReport(period, limit, startDate, endDate) {
+    const params = new URLSearchParams({ period, limit: limit || 10 });
+    if (period === 'custom' && startDate && endDate) {
+      params.append('startDate', startDate);
+      params.append('endDate', endDate);
+    }
+    return this.request(`/reports/customers?${params.toString()}`);
+  }
+  async getTimeSlotAnalysis(period, startDate, endDate) {
+    const params = new URLSearchParams({ period });
+    if (period === 'custom' && startDate && endDate) {
+      params.append('startDate', startDate);
+      params.append('endDate', endDate);
+    }
+    return this.request(`/reports/time-slots?${params.toString()}`);
+  }
+  
 }
+
+
 
 export default new ApiService();
