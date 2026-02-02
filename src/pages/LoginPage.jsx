@@ -60,11 +60,7 @@ const LoginPage = ({ onLogin, loading }) => {
             </button>
           </form>
           
-          <div className="mt-6 text-center text-sm text-purple-300">
-            <p>Test accounts:</p>
-            <p className="mt-1">Superadmin: superadmin@footballbooking.com / superadmin123</p>
-            <p>Admin: admin1@footballbooking.com / 123456</p>
-          </div>
+          
         </div>
       </div>
     </div>

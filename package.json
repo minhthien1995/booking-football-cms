@@ -2,6 +2,7 @@
   "name": "football-admin",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://minhthien1995.github.io/booking-football-cms-bulid",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
