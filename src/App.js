@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import socketService from './services/socket';
 
 // Services
 import api from './services/api';
@@ -75,6 +76,44 @@ function App() {
         break;
     }
   }, [activeTab, user]);
+
+  // ⭐ THÊM USEEFFECT MỚI - SOCKET LISTENER
+  useEffect(() => {
+    if (!user) return;
+
+    // Connect socket when user logged in
+    socketService.connect();
+    console.log('🔌 Socket service connected');
+
+    // Listen for new bookings
+    const handleNewBooking = (data) => {
+      console.log('🔔 New booking received in App:', data);
+      
+      // Show notification
+      showNotification(`📢 Booking mới từ ${data.customerName}!`, 'success');
+      
+      // Auto refresh bookings if on bookings tab
+      if (activeTab === 'bookings') {
+        fetchBookings();
+      }
+      
+      // Auto refresh stats if on dashboard
+      if (activeTab === 'dashboard') {
+        fetchStats();
+      }
+    };
+
+    socketService.on('new-booking', handleNewBooking);
+
+    // Cleanup on unmount or user logout
+    return () => {
+      console.log('🔌 Cleaning up socket listener');
+      socketService.off('new-booking', handleNewBooking);
+      if (!user) {
+        socketService.disconnect();
+      }
+    };
+  }, [user, activeTab]); // Dependencies: user and activeTab
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });

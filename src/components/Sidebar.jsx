@@ -1,13 +1,14 @@
 import React from 'react';
 import { Menu, X, Users, Shield, Calendar, MapPin, TrendingUp, LogOut, BarChart3 } from 'lucide-react';
+import NotificationBell from './NotificationBell';
 
-const Sidebar = ({ 
-  sidebarOpen, 
-  setSidebarOpen, 
-  activeTab, 
-  setActiveTab, 
-  user, 
-  onLogout 
+const Sidebar = ({
+  sidebarOpen,
+  setSidebarOpen,
+  activeTab,
+  setActiveTab,
+  user,
+  onLogout
 }) => {
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
@@ -19,9 +20,8 @@ const Sidebar = ({
   ];
 
   return (
-    <aside className={`fixed top-0 left-0 h-full bg-gradient-to-b from-slate-900 to-slate-800 text-white transition-all duration-300 ${
-      sidebarOpen ? 'w-72' : 'w-20'
-    } shadow-2xl z-40`}>
+    <aside className={`fixed top-0 left-0 h-full bg-gradient-to-b from-slate-900 to-slate-800 text-white transition-all duration-300 ${sidebarOpen ? 'w-72' : 'w-20'
+      } shadow-2xl z-40`}>
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center justify-between">
           {sidebarOpen && (
@@ -35,6 +35,8 @@ const Sidebar = ({
               </div>
             </div>
           )}
+          {/* ⭐ THÊM NOTIFICATION BELL */}
+          {sidebarOpen && <NotificationBell />}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2 hover:bg-white/10 rounded-lg transition"
@@ -49,11 +51,10 @@ const Sidebar = ({
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${
-              activeTab === item.id
-                ? 'bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg'
-                : 'hover:bg-white/10'
-            }`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${activeTab === item.id
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg'
+              : 'hover:bg-white/10'
+              }`}
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
             {sidebarOpen && <span className="font-medium">{item.label}</span>}
