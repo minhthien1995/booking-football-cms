@@ -15,10 +15,11 @@ const BookingsPage = ({
 
   // Filter bookings
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = 
+    const matchesSearch =
       booking.user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.field?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      booking.field?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.bookingCode?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     const matchesPayment = paymentFilter === 'all' || booking.paymentStatus === paymentFilter;
@@ -120,7 +121,7 @@ const BookingsPage = ({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name, email, field..."
+              placeholder="Search by name, email, field, booking code..."
               className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
@@ -197,7 +198,10 @@ const BookingsPage = ({
                 filteredBookings.map(booking => (
                   <tr key={booking.id} className="hover:bg-slate-50 transition">
                     <td className="px-6 py-4">
-                      <span className="font-mono text-sm text-slate-600">#{booking.id}</span>
+                      <div>
+                        <p className="font-mono font-semibold text-sm text-slate-900">{booking.bookingCode || `#${booking.id}`}</p>
+                        {booking.bookingCode && <p className="text-xs text-slate-400">#{booking.id}</p>}
+                      </div>
                     </td>
                     
                     <td className="px-6 py-4">
@@ -301,7 +305,11 @@ const BookingsPage = ({
             
             <div className="p-6 space-y-6">
               {/* Booking Info */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-slate-500 mb-1">Booking Code</p>
+                  <p className="font-mono font-bold text-slate-900">{selectedBooking.bookingCode || '-'}</p>
+                </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1">Booking ID</p>
                   <p className="font-mono font-bold text-slate-900">#{selectedBooking.id}</p>

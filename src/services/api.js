@@ -284,6 +284,47 @@ class ApiService {
     }
     return this.request(`/reports/time-slots?${params.toString()}`);
   }
+
+  // ============================================
+  // NOTIFICATIONS METHODS
+  // ============================================
+  
+  async getNotifications(limit = 50, offset = 0, unreadOnly = false) {
+    const params = new URLSearchParams({ 
+      limit: limit.toString(), 
+      offset: offset.toString(),
+      unreadOnly: unreadOnly.toString()
+    });
+    return this.request(`/notifications?${params.toString()}`);
+  }
+
+  async getUnreadCount() {
+    return this.request('/notifications/unread-count');
+  }
+
+  async markNotificationAsRead(id) {
+    return this.request(`/notifications/${id}/read`, {
+      method: 'PUT'
+    });
+  }
+
+  async markAllNotificationsAsRead() {
+    return this.request('/notifications/read-all', {
+      method: 'PUT'
+    });
+  }
+
+  async deleteNotification(id) {
+    return this.request(`/notifications/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async deleteAllNotifications() {
+    return this.request('/notifications', {
+      method: 'DELETE'
+    });
+  }
   
 }
 

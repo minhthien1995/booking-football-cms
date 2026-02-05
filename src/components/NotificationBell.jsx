@@ -1,34 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, X, Check, Calendar, Clock } from 'lucide-react';
 import socketService from '../services/socket';
+import api from '../services/api';
 
 const NotificationBell = ({ onNewBooking }) => {
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
+  // Load notifications from DB on mount
   useEffect(() => {
-    // Connect socket when component mounts
+    const fetchNotifications = async () => {
+      try {
+        const res = await api.getNotifications(50);
+        const raw = res.data?.notifications || res.notifications || [];
+        const notifs = raw.map(n => ({
+          ...n,
+          ...(n.data || {}),
+          timestamp: n.createdAt || n.timestamp
+        }));
+        setNotifications(notifs);
+        setUnreadCount(notifs.filter(n => !n.read).length);
+      } catch (err) {
+        console.error('Failed to load notifications:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNotifications();
+  }, []);
+
+  // Socket.IO for real-time new bookings
+  useEffect(() => {
     socketService.connect();
 
-    // Listen for new bookings
     const handleNewBooking = (data) => {
       console.log('🔔 New booking notification:', data);
-      
+
       const notification = {
-        id: Date.now(),
+        id: data.id || Date.now(),
         ...data,
         read: false,
-        timestamp: new Date().toISOString()
+        timestamp: data.createdAt || data.timestamp || new Date().toISOString()
       };
 
       setNotifications(prev => [notification, ...prev]);
       setUnreadCount(prev => prev + 1);
 
-      // Play notification sound
       playNotificationSound();
 
-      // Show browser notification
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('🔔 Booking mới!', {
           body: `${data.customerName} đã đặt sân ${data.fieldName}`,
@@ -37,7 +58,6 @@ const NotificationBell = ({ onNewBooking }) => {
         });
       }
 
-      // Callback to parent
       if (onNewBooking) {
         onNewBooking(data);
       }
@@ -45,7 +65,6 @@ const NotificationBell = ({ onNewBooking }) => {
 
     socketService.on('new-booking', handleNewBooking);
 
-    // Request notification permission
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
@@ -60,23 +79,38 @@ const NotificationBell = ({ onNewBooking }) => {
     audio.play().catch(err => console.log('Sound play failed:', err));
   };
 
-  const markAsRead = (id) => {
-    setNotifications(prev => 
+  const markAsRead = async (id) => {
+    setNotifications(prev =>
       prev.map(n => n.id === id ? { ...n, read: true } : n)
     );
     setUnreadCount(prev => Math.max(0, prev - 1));
+    try {
+      await api.markNotificationAsRead(id);
+    } catch (err) {
+      console.error('Failed to mark as read:', err);
+    }
   };
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     setUnreadCount(0);
+    try {
+      await api.markAllNotificationsAsRead();
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
+    }
   };
 
-  const clearNotification = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+  const clearNotification = async (id) => {
     const notif = notifications.find(n => n.id === id);
+    setNotifications(prev => prev.filter(n => n.id !== id));
     if (notif && !notif.read) {
       setUnreadCount(prev => Math.max(0, prev - 1));
+    }
+    try {
+      await api.deleteNotification(id);
+    } catch (err) {
+      console.error('Failed to delete notification:', err);
     }
   };
 
@@ -137,7 +171,12 @@ const NotificationBell = ({ onNewBooking }) => {
 
             {/* Notifications List */}
             <div className="overflow-y-auto max-h-[500px]">
-              {notifications.length === 0 ? (
+              {loading ? (
+                <div className="p-8 text-center text-gray-500">
+                  <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  <p>Đang tải...</p>
+                </div>
+              ) : notifications.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                   <p>Chưa có thông báo mới</p>
@@ -157,11 +196,18 @@ const NotificationBell = ({ onNewBooking }) => {
                             <Calendar className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <h4 className="font-bold text-gray-900">
-                              {notif.customerName}
-                            </h4>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-gray-900">
+                                {notif.customerName}
+                              </h4>
+                              {notif.bookingCode && (
+                                <span className="text-xs bg-purple-100 text-purple-700 font-semibold px-2 py-0.5 rounded-full">
+                                  {notif.bookingCode}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-gray-500">
-                              {formatTime(notif.timestamp)}
+                              {formatTime(notif.createdAt || notif.timestamp)}
                             </p>
                           </div>
                         </div>
