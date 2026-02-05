@@ -23,6 +23,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState(null);
   const [notification, setNotification] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [fields, setFields] = useState([]);
@@ -188,11 +189,12 @@ function App() {
   const handleLogin = async (email, password) => {
     try {
       setLoading(true);
+      setLoginError(null);
       const data = await api.login(email, password);
       setUser(data.user);
       showNotification('Đăng nhập thành công!');
     } catch (error) {
-      showNotification(error.message, 'error');
+      setLoginError(error.message);
     } finally {
       setLoading(false);
     }
@@ -288,7 +290,7 @@ function App() {
 
   // If not logged in, show login page
   if (!user) {
-    return <LoginPage onLogin={handleLogin} loading={loading} />;
+    return <LoginPage onLogin={handleLogin} loading={loading} error={loginError} />;
   }
 
   // Main dashboard

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Shield } from 'lucide-react';
+import { Shield, AlertCircle } from 'lucide-react';
 
-const LoginPage = ({ onLogin, loading }) => {
+const LoginPage = ({ onLogin, loading, error }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -51,6 +51,13 @@ const LoginPage = ({ onLogin, loading }) => {
               />
             </div>
             
+            {error && (
+              <div className="flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-xl px-4 py-3">
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                <p className="text-red-300 text-sm">{error}</p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
