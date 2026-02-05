@@ -21,7 +21,7 @@ const NotificationBell = ({ onNewBooking }) => {
           timestamp: n.createdAt || n.timestamp
         }));
         setNotifications(notifs);
-        setUnreadCount(notifs.filter(n => !n.read).length);
+        setUnreadCount(notifs.filter(n => !n.isRead).length);
       } catch (err) {
         console.error('Failed to load notifications:', err);
       } finally {
@@ -41,7 +41,7 @@ const NotificationBell = ({ onNewBooking }) => {
       const notification = {
         id: data.id || Date.now(),
         ...data,
-        read: false,
+        isRead: false,
         timestamp: data.createdAt || data.timestamp || new Date().toISOString()
       };
 
@@ -81,7 +81,7 @@ const NotificationBell = ({ onNewBooking }) => {
 
   const markAsRead = async (id) => {
     setNotifications(prev =>
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
+      prev.map(n => n.id === id ? { ...n, isRead: true } : n)
     );
     setUnreadCount(prev => Math.max(0, prev - 1));
     try {
@@ -92,7 +92,7 @@ const NotificationBell = ({ onNewBooking }) => {
   };
 
   const markAllAsRead = async () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     setUnreadCount(0);
     try {
       await api.markAllNotificationsAsRead();
@@ -104,7 +104,7 @@ const NotificationBell = ({ onNewBooking }) => {
   const clearNotification = async (id) => {
     const notif = notifications.find(n => n.id === id);
     setNotifications(prev => prev.filter(n => n.id !== id));
-    if (notif && !notif.read) {
+    if (notif && !notif.isRead) {
       setUnreadCount(prev => Math.max(0, prev - 1));
     }
     try {
@@ -186,7 +186,7 @@ const NotificationBell = ({ onNewBooking }) => {
                   <div
                     key={notif.id}
                     className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition ${
-                      !notif.read ? 'bg-purple-50' : ''
+                      !notif.isRead ? 'bg-purple-50' : ''
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -230,7 +230,7 @@ const NotificationBell = ({ onNewBooking }) => {
                       </div>
 
                       <div className="flex flex-col gap-2">
-                        {!notif.read && (
+                        {!notif.isRead && (
                           <button
                             onClick={() => markAsRead(notif.id)}
                             className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
