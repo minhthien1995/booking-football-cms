@@ -226,7 +226,7 @@ class ApiService {
   }
 
   async updatePaymentStatus(id, paymentStatus) {
-    return this.request(`/bookings/${id}/payment`, {
+    return this.request(`/bookings/${id}/payment-status`, {
       method: 'PUT',
       body: JSON.stringify({ paymentStatus }),
     });
